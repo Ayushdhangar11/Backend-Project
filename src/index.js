@@ -2,12 +2,27 @@ import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import connectDB from './db/index.js';
 import dns from 'dns';
+import {app} from './app.js';
 
 dns.setServers(['8.8.8.8', '1.1.1.1']);
 
 dotenv.config();
 
-connectDB();
+connectDB()
+.then(() => {
+    app.on("error", (error) => {
+        console.log("Error in creating server : ", error);
+        throw error;
+    });
+
+    app.listen(process.env.PORT || 8000, () => {
+        console.log(`Server is running on port ${process.env.PORT || 8000}`);
+    });
+})
+.catch((error) => {
+    console.log("Error : ", error);
+    process.exit(1); // Exit the process with a failure code
+});
 
 
 
